@@ -1,0 +1,26 @@
+{
+  "name": "task-management-for-expressjs-learning-",
+  "version": "1.0.0",
+  "description": "Express JS backend for a simple task management app for simple practice",
+  "keywords": [
+    "none"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "license": "ISC",
+  "author": "Valentino Nathan",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "none",
+    "start": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
