@@ -26,12 +26,21 @@ router.post("/", async (req, res) => {
     taskMiddleware.createTask(req, res);
 });
 
+router.delete("/", async (req, res) => {
+    try {
+        await taskMiddleware.deleteAllTasks();
+        res.status(200).send("All tasks have been deleted");
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+});
+
 router.get("/:id", (req, res) => {
     async function getTaskByIdAsync(id) {
         let task = await taskMiddleware.getTaskById(id);
         task = task.task;
         if (task == null) {
-            res.sendStatus(404);
+            res.status(404).send(`Task ${req.params.id} has been deleted`);
         } else {
             res.send(task);
         }

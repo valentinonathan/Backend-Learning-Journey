@@ -72,9 +72,14 @@ async function updateTask(req, res) {
 
 }
 
+async function deleteAllTasks(req, res) {
+    await fs.writeFile("./data/task-database.json", JSON.stringify({"tasks": []}, null, 2));
+}
+
 module.exports = {
     taskParser: taskParser,
     getTaskById: getTaskById,
     createTask: createTask,
-    updateTask: updateTask
+    updateTask: updateTask,
+    deleteAllTasks: deleteAllTasks
 }
