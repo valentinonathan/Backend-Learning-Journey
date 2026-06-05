@@ -4,7 +4,7 @@ const db = require("../db/index.js");
 
 router.get("/", async (req, res) => {
     try {
-        let result = await db.query("SELECT * FROM tasks");
+        let result = await db.query("SELECT * FROM tasks WHERE users_username = $1", [req?.user?.username]);
         result = result?.rows;
         res.send(result);
     } catch (error) {
@@ -14,7 +14,11 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
     try {
-        let result = await db.query("SELECT * FROM tasks WHERE id = $1", [req.params.id]);
+        let taskQuery = await db.query("SELECT users_username FROM tasks WHERE id = $1", [req.params.id]);
+        if (taskQuery.rows.length == 0 || taskQuery.rows?.[0]?.users_username != req?.user?.username) {
+            return res.status(404).send("Task not found");
+        }
+        let result = await db.query("SELECT * FROM tasks WHERE id = $1 AND users_username = $2", [req.params.id, req?.user?.username]);
         result = result ?.rows;
         res.send(result);
     } catch (error) {
@@ -34,7 +38,7 @@ router.post("/", async (req, res) => {
             return res.status(400).send("Task has no is_completed")
         } 
 
-        const result = await db.query("INSERT INTO tasks (name, is_completed) VALUES ($1, $2) RETURNING *", [name, is_completed]);
+        const result = await db.query("INSERT INTO tasks (name, is_completed, users_username) VALUES ($1, $2, $3) RETURNING *", [name, is_completed, req?.user?.username]);
 
         res.status(200).send(result?.rows);
     } catch (error) {
@@ -44,6 +48,11 @@ router.post("/", async (req, res) => {
 
 router.patch("/:id", async (req, res) => {
     try {
+        let taskQuery = await db.query("SELECT users_username FROM tasks WHERE id = $1", [req.params.id]);
+        if (taskQuery.rows.length == 0 || taskQuery.rows?.[0]?.users_username != req?.user?.username) {
+            return res.status(404).send("Task not found");
+        }
+
         const newTask = req.body;
         let result = null;
 
@@ -51,10 +60,10 @@ router.patch("/:id", async (req, res) => {
             return res.status(400).send("No name and is_completed in the task");
         }
         if (newTask?.name != null) {
-            result = await db.query("UPDATE tasks SET name = $1 WHERE id = $2 RETURNING *", [newTask.name, req.params.id]);
+            result = await db.query("UPDATE tasks SET name = $1 WHERE id = $2 AND users_username = $3 RETURNING *", [newTask.name, req.params.id, req?.user?.username]);
         }
         if (newTask?.is_completed) {
-            result = await db.query("UPDATE tasks SET is_completed = $1 WHERE id = $2 RETURNING *", [newTask.is_completed, req.params.id]);
+            result = await db.query("UPDATE tasks SET is_completed = $1 WHERE id = $2 AND users_username = $3 RETURNING *", [newTask.is_completed, req.params.id, req?.user?.username]);
         }
 
         res.status(200).send(result?.rows);
@@ -65,8 +74,12 @@ router.patch("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
     try {
-        const result = await db.query("DELETE FROM tasks WHERE id = $1", [req.params.id]);
+        let taskQuery = await db.query("SELECT users_username FROM tasks WHERE id = $1", [req.params.id]);
+        if (taskQuery.rows.length == 0 || taskQuery.rows?.[0]?.users_username != req?.user?.username) {
+            return res.status(404).send("Task not found");
+        }
 
+        const result = await db.query("DELETE FROM tasks WHERE id = $1 AND users_username = $3", [req.params.id, req?.user?.username]);
         res.status(200).send(result);
     } catch (error) {
         res.status(500).send(error.message);

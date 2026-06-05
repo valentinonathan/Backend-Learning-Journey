@@ -14,7 +14,6 @@ async function authenticateUser(req, res, next) {
             return res.status(401).send(error.message);
         }
         req.user = payload;
-        console.log(payload);
         next();
     } catch (error) {
         res.status(500).send(error.message);
