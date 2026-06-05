@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const db = require("../db/index.js")
+require("dotenv").config();
 
 async function authenticateUser(req, res, next) {
     try {
@@ -9,7 +10,7 @@ async function authenticateUser(req, res, next) {
         }
         let payload = null;
         try {
-            payload = jwt.verify(token, "Password");
+            payload = jwt.verify(token, process.env.JWT_PASSWORD);
         } catch (error) {
             return res.status(401).send(error.message);
         }

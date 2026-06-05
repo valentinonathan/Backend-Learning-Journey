@@ -2,6 +2,7 @@ const express = require("Express");
 const router = express.Router();
 const db = require("../db/index.js");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 router.post("/", async (req, res) => {
     try {
@@ -19,7 +20,7 @@ router.post("/", async (req, res) => {
             return res.status(400).send("Username not found");
         }
         if (result[0].password == password) {
-            const token = jwt.sign({username: username}, "Password", {expiresIn:"1h"});
+            const token = jwt.sign({username: username}, process.env.JWT_PASSWORD, {expiresIn:"1h"});
             res.cookie("token", token);
             return res.status(200).send("You are authorized");
         } else {
