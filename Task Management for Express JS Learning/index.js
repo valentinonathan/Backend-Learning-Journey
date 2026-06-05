@@ -17,7 +17,7 @@ const taskRouterSQL = require("./routes/task-sql-route.js").router;
 const authRouter = require("./routes/auth-route.js").router;
 
 app.use("/tasks/json", authMiddleware.authenticateUser, taskRouterJSON);
-app.use("/tasks/sql", authMiddleware.authenticateUser, taskRouterSQL);
+app.use("/tasks", authMiddleware.authenticateUser, taskRouterSQL);
 app.use("/login", authRouter);
 
 app.listen(3000, () => {console.log(`Express server listening on port ${port}`)});
